@@ -1,0 +1,48 @@
+{
+  "name": "rto-quiz",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:import": "tsx prisma/importQuestions.ts",
+    "make:admin": "tsx prisma/makeAdmin.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.3.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.3",
+    "next": "^15.1.6",
+    "nodemailer": "^10.0.1",
+    "postcss": "^8.5.28",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.3.3",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^15.1.6",
+    "prisma": "^6.3.1",
+    "tsx": "^4.23.13",
+    "typescript": "^5.7.3"
+  }
+}

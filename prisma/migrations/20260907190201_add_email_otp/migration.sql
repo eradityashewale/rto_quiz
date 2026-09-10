@@ -1,0 +1,26 @@
+-- CreateEnum
+CREATE TYPE "OtpPurpose" AS ENUM ('EMAIL_VERIFICATION');
+
+-- CreateTable
+CREATE TABLE "EmailOtp" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "codeHash" TEXT NOT NULL,
+    "purpose" "OtpPurpose" NOT NULL DEFAULT 'EMAIL_VERIFICATION',
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "consumedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "EmailOtp_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "EmailOtp_userId_idx" ON "EmailOtp"("userId");
+
+-- CreateIndex
+CREATE INDEX "EmailOtp_email_idx" ON "EmailOtp"("email");
+
+-- AddForeignKey
+ALTER TABLE "EmailOtp" ADD CONSTRAINT "EmailOtp_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

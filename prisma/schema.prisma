@@ -1,0 +1,445 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum AuthProviderType {
+  PASSWORD
+  GOOGLE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum OptionLabel {
+  A
+  B
+  C
+  D
+}
+
+enum TestType {
+  DAILY_FREE
+  PACKAGE
+  PREVIOUS_YEAR
+  SUBJECT_WISE
+}
+
+enum TestStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+  EXPIRED
+}
+
+enum PackageType {
+  TEST_COUNT
+  SUBSCRIPTION
+  SUBJECT_SPECIFIC
+  PREVIOUS_YEAR
+}
+
+enum PaymentStatus {
+  CREATED
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PurchaseStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+// ---------- Auth / Users ----------
+
+model User {
+  id               String    @id @default(cuid())
+  name             String
+  email            String    @unique
+  mobile           String    @unique
+  passwordHash     String?
+  role             Role      @default(STUDENT)
+  isActive         Boolean   @default(true)
+  emailVerifiedAt  DateTime?
+  mobileVerifiedAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  authAccounts       AuthAccount[]
+  testAttempts       TestAttempt[]
+  payments           Payment[]
+  purchases          Purchase[]
+  userTestAccess     UserTestAccess[]
+  createdQuestions   Question[]           @relation("QuestionCreatedBy")
+  dailyFreeProgress  DailyFreeProgress[]
+  savedQuestions     SavedQuestion[]
+  siteVisits         SiteVisit[]
+
+  @@index([role])
+}
+
+model AuthAccount {
+  id                String           @id @default(cuid())
+  userId            String
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider          AuthProviderType
+  providerAccountId String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model PendingRegistration {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  mobile       String
+  passwordHash String
+  codeHash     String
+  attempts     Int      @default(0)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------- Content hierarchy ----------
+
+model Standard {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  nameMr    String
+  nameEn    String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subjects  Subject[]
+  tests     Test[]
+}
+
+model Subject {
+  id         String   @id @default(cuid())
+  standardId String
+  standard   Standard @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  code       String
+  nameMr     String
+  nameEn     String
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  questions  Question[]
+
+  @@unique([standardId, code])
+  @@index([standardId])
+}
+
+model Question {
+  id            String         @id @default(cuid())
+  subjectId     String
+  subject       Subject        @relation(fields: [subjectId], references: [id], onDelete: Restrict)
+  textMr        String
+  textEn        String
+  explanationMr String?
+  explanationEn String?
+  difficulty    Difficulty     @default(MEDIUM)
+  status        QuestionStatus @default(ACTIVE)
+  createdById   String?
+  createdBy     User?          @relation("QuestionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  options        QuestionOption[]
+  testQuestions  TestQuestion[]
+  testAnswers    TestAnswer[]
+  savedByUsers   SavedQuestion[]
+
+  @@index([subjectId])
+  @@index([status])
+  @@index([difficulty])
+}
+
+model QuestionOption {
+  id         String      @id @default(cuid())
+  questionId String
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label      OptionLabel
+  textMr     String
+  textEn     String
+  isCorrect  Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  testAnswers TestAnswer[]
+
+  @@unique([questionId, label])
+  @@index([questionId])
+}
+
+// ---------- Tests ----------
+
+model Test {
+  id              String      @id @default(cuid())
+  titleMr         String
+  titleEn         String
+  type            TestType    @default(PACKAGE)
+  standardId      String
+  standard        Standard    @relation(fields: [standardId], references: [id], onDelete: Restrict)
+  packageId       String?
+  package         Package?    @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  durationMinutes Int
+  totalQuestions  Int         @default(0)
+  difficulty      Difficulty?
+  status          TestStatus  @default(DRAFT)
+  sortOrder       Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  testQuestions     TestQuestion[]
+  testAttempts      TestAttempt[]
+  dailyFreeTest     DailyFreeTest?
+  dailyFreeProgress DailyFreeProgress[]
+
+  @@index([standardId])
+  @@index([packageId])
+  @@index([status])
+  @@index([type])
+}
+
+model TestQuestion {
+  id         String   @id @default(cuid())
+  testId     String
+  test       Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  orderIndex Int
+  marks      Int      @default(1)
+  createdAt  DateTime @default(now())
+
+  @@unique([testId, questionId])
+  @@unique([testId, orderIndex])
+  @@index([questionId])
+}
+
+model TestAttempt {
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testId           String
+  test             Test          @relation(fields: [testId], references: [id], onDelete: Restrict)
+  status           AttemptStatus @default(IN_PROGRESS)
+  startedAt        DateTime      @default(now())
+  submittedAt      DateTime?
+  score            Float?
+  totalQuestions   Int
+  correctCount     Int           @default(0)
+  incorrectCount   Int           @default(0)
+  unattemptedCount Int           @default(0)
+  timeTakenSeconds Int?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  answers          TestAnswer[]
+
+  @@index([userId])
+  @@index([testId])
+  @@index([status])
+}
+
+model TestAnswer {
+  id               String          @id @default(cuid())
+  attemptId        String
+  attempt          TestAttempt     @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId       String
+  question         Question        @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  selectedOptionId String?
+  selectedOption   QuestionOption? @relation(fields: [selectedOptionId], references: [id], onDelete: SetNull)
+  isCorrect        Boolean?
+  timeTakenSeconds Int?
+  answeredAt       DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@unique([attemptId, questionId])
+  @@index([questionId])
+}
+
+// ---------- Packages / Payments ----------
+
+model Package {
+  id              String      @id @default(cuid())
+  code            String      @unique
+  type            PackageType @default(TEST_COUNT)
+  nameMr          String
+  nameEn          String
+  descriptionMr   String?
+  descriptionEn   String?
+  testCount       Int?
+  validityDays    Int?
+  priceInPaise    Int
+  discountInPaise Int         @default(0)
+  isPopular       Boolean     @default(false)
+  isActive        Boolean     @default(true)
+  sortOrder       Int         @default(0)
+  features        Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  tests           Test[]
+  payments        Payment[]
+  purchases       Purchase[]
+  userTestAccess  UserTestAccess[]
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  packageId        String
+  package          Package       @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  gatewayOrderId   String        @unique
+  gatewayPaymentId String?       @unique
+  gatewaySignature String?
+  amountInPaise    Int
+  currency         String        @default("INR")
+  status           PaymentStatus @default(CREATED)
+  rawResponse      Json?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  purchase         Purchase?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Purchase {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  packageId   String
+  package     Package        @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  paymentId   String         @unique
+  payment     Payment        @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  status      PurchaseStatus @default(ACTIVE)
+  purchasedAt DateTime       @default(now())
+  expiresAt   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  userTestAccess UserTestAccess[]
+
+  @@index([userId])
+  @@index([packageId])
+}
+
+model UserTestAccess {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId  String
+  package    Package   @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  purchaseId String
+  purchase   Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  grantedAt  DateTime  @default(now())
+  expiresAt  DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([userId, purchaseId])
+  @@index([userId])
+  @@index([packageId])
+}
+
+model DailyFreeTest {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  testId    String   @unique
+  test      Test     @relation(fields: [testId], references: [id], onDelete: Restrict)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Tracks, per user and per daily-free test, which of that test's questions
+// have already been served in the current rotation cycle - so a user keeps
+// getting fresh questions (10 at a time out of the day's 20) and never sees
+// a repeat until the whole pool has been shown, at which point the cycle
+// rolls over and the pool becomes available again.
+model DailyFreeProgress {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testId            String
+  test              Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  servedQuestionIds Json     @default("[]")
+  cycleNumber       Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([userId, testId])
+  @@index([userId])
+}
+
+// A single page load, used to power admin-dashboard traffic stats.
+// visitorId is a random id set in a long-lived cookie so anonymous visits
+// can be de-duplicated into "unique visitors" without requiring login.
+model SiteVisit {
+  id        String   @id @default(cuid())
+  path      String
+  visitorId String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([visitorId])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+// Questions a user has bookmarked from past attempts to revisit for revision.
+model SavedQuestion {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, questionId])
+  @@index([userId])
+  @@index([questionId])
+}

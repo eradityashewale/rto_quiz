@@ -5,7 +5,7 @@ export type AuthTokenPayload = {
   role: string;
 };
 
-const TOKEN_TTL = "30d";
+const TOKEN_TTL = "365d";
 
 function getSecret(): string {
   const secret = process.env.JWT_SECRET;

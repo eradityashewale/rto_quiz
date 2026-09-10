@@ -3,9 +3,52 @@ import { prisma } from "@/lib/prisma";
 
 export const DAILY_FREE_QUESTION_COUNT = 10;
 
+// The daily-free quiz launched on this date; it's the earliest day that can
+// ever be shown, regardless of the rolling window below.
+export const DAILY_FREE_LAUNCH_DATE = new Date(Date.UTC(2025, 8, 5));
+
+// Users can only catch up on today plus this many previous days (e.g. 2
+// means today, yesterday, and the day before - a 3-day rolling window).
+export const DAILY_FREE_PAST_DAYS_ALLOWED = 2;
+
 function todayUtcDate(): Date {
   const now = new Date();
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+}
+
+function toDateKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function earliestAllowedDate(): Date {
+  const today = todayUtcDate();
+  const windowStart = new Date(today);
+  windowStart.setUTCDate(windowStart.getUTCDate() - DAILY_FREE_PAST_DAYS_ALLOWED);
+  return windowStart.getTime() > DAILY_FREE_LAUNCH_DATE.getTime() ? windowStart : DAILY_FREE_LAUNCH_DATE;
+}
+
+function isWithinDailyFreeRange(date: Date): boolean {
+  return date.getTime() >= earliestAllowedDate().getTime() && date.getTime() <= todayUtcDate().getTime();
+}
+
+/**
+ * Parses a "YYYY-MM-DD" query param into a UTC-midnight Date, defaulting to
+ * today when omitted. Returns null when the value is malformed or falls
+ * outside the allowed rolling window (today minus DAILY_FREE_PAST_DAYS_ALLOWED
+ * days, through today).
+ */
+export function parseDailyFreeDateParam(value: string | null): Date | null {
+  if (!value) return todayUtcDate();
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+
+  const [, y, m, d] = match;
+  const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+  if (Number.isNaN(date.getTime()) || toDateKey(date) !== value) return null;
+  if (!isWithinDailyFreeRange(date)) return null;
+
+  return date;
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -31,13 +74,13 @@ const testWithQuestionsInclude = {
 type TestWithQuestions = Prisma.TestGetPayload<{ include: typeof testWithQuestionsInclude }>;
 
 /**
- * Returns today's daily-free Test, creating it (with a random 10-question
- * pool pulled from the active question bank) the first time it's requested
- * for the day.
+ * Returns the daily-free Test for the given UTC-midnight date (defaults to
+ * today), creating it (with a random 10-question pool pulled from the
+ * active question bank) the first time it's requested for that day.
  */
-export async function getOrCreateTodayDailyFreeTest(): Promise<TestWithQuestions> {
-  const date = todayUtcDate();
-
+export async function getOrCreateDailyFreeTestForDate(
+  date: Date = todayUtcDate()
+): Promise<TestWithQuestions> {
   const existing = await prisma.dailyFreeTest.findUnique({
     where: { date },
     include: { test: { include: testWithQuestionsInclude } },
@@ -110,13 +153,16 @@ export type DailyFreeAlreadyAttempted = {
 /**
  * Each user gets exactly one daily-free attempt per day: resumes an
  * in-progress attempt if one exists, hands back a summary (no new attempt)
- * if today's attempt is already completed, and otherwise creates the one
- * attempt for the day from today's 10-question pool.
+ * if that day's attempt is already completed, and otherwise creates the one
+ * attempt for the day from that day's 10-question pool. Defaults to today,
+ * but accepts any date from the launch date through today so users can
+ * catch up on quizzes they missed.
  */
 export async function getNextBatchForUser(
-  userId: string
+  userId: string,
+  date: Date = todayUtcDate()
 ): Promise<DailyFreeBatch | DailyFreeAlreadyAttempted> {
-  const test = await getOrCreateTodayDailyFreeTest();
+  const test = await getOrCreateDailyFreeTestForDate(date);
   const poolQuestions = test.testQuestions.map((tq) => tq.question);
   const poolById = new Map(poolQuestions.map((q) => [q.id, q]));
 
@@ -168,6 +214,62 @@ export async function getNextBatchForUser(
     testId: test.id,
     questions: batch.map(toBatchQuestion),
   };
+}
+
+export type DailyFreeDaySummary = {
+  date: string;
+  dayNumber: number;
+  isToday: boolean;
+  attempted: boolean;
+  score: number | null;
+};
+
+/**
+ * Lists the days within the allowed rolling window (today minus
+ * DAILY_FREE_PAST_DAYS_ALLOWED days, through today - never before the
+ * launch date), along with whether the given user has completed that day's
+ * quiz (and their score), so the UI can offer a day picker for catching up
+ * on recent previous days only.
+ */
+export async function listDailyFreeDays(userId: string): Promise<DailyFreeDaySummary[]> {
+  const today = todayUtcDate();
+  const todayKey = toDateKey(today);
+  const windowStart = earliestAllowedDate();
+
+  const days: { date: Date; key: string; dayNumber: number }[] = [];
+  const cursor = new Date(windowStart);
+  while (cursor.getTime() <= today.getTime()) {
+    const dayNumber = Math.round((cursor.getTime() - DAILY_FREE_LAUNCH_DATE.getTime()) / 86_400_000) + 1;
+    days.push({ date: new Date(cursor), key: toDateKey(cursor), dayNumber });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  const tests = await prisma.dailyFreeTest.findMany({
+    where: { date: { gte: windowStart, lte: today } },
+    select: { date: true, testId: true },
+  });
+  const testIdByDateKey = new Map(tests.map((t) => [toDateKey(t.date), t.testId]));
+
+  const testIds = tests.map((t) => t.testId);
+  const attempts = testIds.length
+    ? await prisma.testAttempt.findMany({
+        where: { userId, testId: { in: testIds }, status: "COMPLETED" },
+        select: { testId: true, score: true },
+      })
+    : [];
+  const attemptByTestId = new Map(attempts.map((a) => [a.testId, a]));
+
+  return days.map((d) => {
+    const testId = testIdByDateKey.get(d.key);
+    const attempt = testId ? attemptByTestId.get(testId) : undefined;
+    return {
+      date: d.key,
+      dayNumber: d.dayNumber,
+      isToday: d.key === todayKey,
+      attempted: Boolean(attempt),
+      score: attempt?.score ?? null,
+    };
+  });
 }
 
 function toBatchQuestion(q: TestWithQuestions["testQuestions"][number]["question"]): DailyFreeBatchQuestion {

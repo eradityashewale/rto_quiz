@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { signAuthToken, verifyAuthToken } from "./jwt";
 
 export const AUTH_COOKIE = "rto_quiz_token";
-const MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days, matches token TTL
+const MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 365 days, matches token TTL — user stays logged in until they log out
 
 export type SessionUser = { id: string; role: string };
 

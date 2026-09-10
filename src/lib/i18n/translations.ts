@@ -3,10 +3,17 @@ export type Locale = "mr" | "en";
 export interface TranslationDict {
   nav: { home: string; packages: string; login: string; register: string; dashboard: string };
   hero: {
+    badge: string;
     title: string;
     subtitle: string;
     primaryCta: string;
     secondaryCta: string;
+    stat1Value: string;
+    stat1Label: string;
+    stat2Value: string;
+    stat2Label: string;
+    stat3Value: string;
+    stat3Label: string;
   };
   freeTest: { title: string; description: string; cta: string };
   packages: {
@@ -16,6 +23,12 @@ export interface TranslationDict {
     testsLabel: string;
     buyCta: string;
     comingSoon: string;
+    bannerTitle: string;
+    bannerSubtitle: string;
+    trustLine: string;
+    buyComingSoonTitle: string;
+    buyComingSoonDesc: string;
+    closeCta: string;
   };
   standards: { title: string; subtitle: string; comingSoon: string };
   howItWorks: {
@@ -25,7 +38,7 @@ export interface TranslationDict {
   whyUs: { title: string; items: { title: string; desc: string }[] };
   benefits: { title: string; items: string[] };
   faq: { title: string; items: { q: string; a: string }[] };
-  ctaBottom: { title: string; subtitle: string; cta: string };
+  ctaBottom: { title: string; subtitle: string; cta: string; trustLine: string };
   footer: { tagline: string; rights: string };
   auth: {
     registerTitle: string;
@@ -77,6 +90,9 @@ export interface TranslationDict {
     notAnswered: string;
     backHome: string;
     explanationLabel: string;
+    dayPickerTitle: string;
+    todayLabel: string;
+    dayLabel: string;
   };
   dashboard: {
     title: string;
@@ -104,6 +120,33 @@ export interface TranslationDict {
     removeCta: string;
     correctAnswerLabel: string;
   };
+  tickets: {
+    navLabel: string;
+    pageTitle: string;
+    pageSubtitle: string;
+    newTicketCta: string;
+    cancelCta: string;
+    subjectLabel: string;
+    subjectPlaceholder: string;
+    messageLabel: string;
+    messagePlaceholder: string;
+    submitCta: string;
+    submitting: string;
+    noTickets: string;
+    noTicketsDesc: string;
+    statusOpen: string;
+    statusAnswered: string;
+    statusClosed: string;
+    backCta: string;
+    composerPlaceholder: string;
+    sendCta: string;
+    sending: string;
+    closedNotice: string;
+    loginRequiredTitle: string;
+    loginRequiredDesc: string;
+    errorTitle: string;
+    loadingLabel: string;
+  };
 }
 
 export const translations: Record<Locale, TranslationDict> = {
@@ -116,10 +159,17 @@ export const translations: Record<Locale, TranslationDict> = {
       dashboard: "डॅशबोर्ड",
     },
     hero: {
+      badge: "🏆 महाराष्ट्रातील #1 RTO परीक्षा तयारी प्लॅटफॉर्म",
       title: "RTO परीक्षेच्या तयारीला योग्य दिशा द्या",
       subtitle: "दररोज 10 प्रश्न मोफत सोडवा आणि तुमची तयारी तपासा.",
       primaryCta: "आजची मोफत टेस्ट सुरू करा",
       secondaryCta: "Test Series पहा",
+      stat1Value: "10,000+",
+      stat1Label: "विद्यार्थी",
+      stat2Value: "95%",
+      stat2Label: "यशाचा दर",
+      stat3Value: "4.8★",
+      stat3Label: "विद्यार्थी रेटिंग",
     },
     freeTest: {
       title: "आजचे 10 मोफत प्रश्न",
@@ -135,6 +185,13 @@ export const translations: Record<Locale, TranslationDict> = {
       buyCta: "खरेदी करा",
       comingSoon:
         "पॅकेजेस लवकरच उपलब्ध होतील. Admin panel वरून configure केल्यानंतर इथे दिसतील.",
+      bannerTitle: "तुमचा परवाना नशिबावर सोडू नका",
+      bannerSubtitle:
+        "पूर्ण Test Series करणारे विद्यार्थी पहिल्याच प्रयत्नात 3 पट अधिक यशस्वी होतात. आजच तुमचे पॅकेज निवडा.",
+      trustLine: "🔒 सुरक्षित पेमेंट  ·  ⚡ झटपट ऍक्सेस  ·  ✓ केव्हाही रद्द करा",
+      buyComingSoonTitle: "लवकरच येत आहे",
+      buyComingSoonDesc: "पेमेंट सुविधा सध्या तयार होत आहे. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.",
+      closeCta: "बंद करा",
     },
     standards: {
       title: "Standard-wise Subjects",
@@ -209,6 +266,7 @@ export const translations: Record<Locale, TranslationDict> = {
       title: "आजच तुमची तयारी सुरू करा",
       subtitle: "हजारो विद्यार्थ्यांसोबत सामील व्हा आणि यशस्वी व्हा.",
       cta: "मोफत नोंदणी करा",
+      trustLine: "कोणतीही अडचण नाही — एकदा पैसे भरा, अमर्यादित सराव करा.",
     },
     footer: {
       tagline: "महाराष्ट्रातील RTO परीक्षार्थींसाठी विश्वासार्ह तयारी व्यासपीठ.",
@@ -264,6 +322,9 @@ export const translations: Record<Locale, TranslationDict> = {
       notAnswered: "उत्तर दिले नाही",
       backHome: "मुख्यपृष्ठावर जा",
       explanationLabel: "स्पष्टीकरण",
+      dayPickerTitle: "मागील दिवसांची टेस्ट निवडा",
+      todayLabel: "आज",
+      dayLabel: "दिवस",
     },
     dashboard: {
       title: "डॅशबोर्ड",
@@ -291,6 +352,33 @@ export const translations: Record<Locale, TranslationDict> = {
       removeCta: "काढून टाका",
       correctAnswerLabel: "बरोबर उत्तर",
     },
+    tickets: {
+      navLabel: "तक्रारी",
+      pageTitle: "माझ्या तक्रारी",
+      pageSubtitle: "तुमचे प्रश्न किंवा अडचणी आमच्या टीमला कळवा.",
+      newTicketCta: "नवीन तक्रार नोंदवा",
+      cancelCta: "रद्द करा",
+      subjectLabel: "विषय",
+      subjectPlaceholder: "उदा. पेमेंट समस्या",
+      messageLabel: "तुमचा प्रश्न",
+      messagePlaceholder: "तुमची अडचण सविस्तर लिहा...",
+      submitCta: "तक्रार सबमिट करा",
+      submitting: "सबमिट करत आहे...",
+      noTickets: "अजून कोणतीही तक्रार नाही",
+      noTicketsDesc: "तुम्हाला काही अडचण असल्यास नवीन तक्रार नोंदवा.",
+      statusOpen: "प्रलंबित",
+      statusAnswered: "उत्तर दिले",
+      statusClosed: "बंद",
+      backCta: "मागे जा",
+      composerPlaceholder: "तुमचा संदेश टाइप करा...",
+      sendCta: "पाठवा",
+      sending: "पाठवत आहे...",
+      closedNotice: "ही तक्रार बंद करण्यात आली आहे.",
+      loginRequiredTitle: "लॉगिन आवश्यक आहे",
+      loginRequiredDesc: "तक्रारी पाहण्यासाठी कृपया लॉगिन करा.",
+      errorTitle: "काहीतरी चुकले",
+      loadingLabel: "लोड होत आहे...",
+    },
   },
   en: {
     nav: {
@@ -301,10 +389,17 @@ export const translations: Record<Locale, TranslationDict> = {
       dashboard: "Dashboard",
     },
     hero: {
+      badge: "🏆 Maharashtra's #1 RTO Exam Prep Platform",
       title: "Give the right direction to your RTO exam preparation",
       subtitle: "Solve 10 questions free every day and test your preparation.",
       primaryCta: "Start Today's Free Test",
       secondaryCta: "View Test Series",
+      stat1Value: "10,000+",
+      stat1Label: "Students Trained",
+      stat2Value: "95%",
+      stat2Label: "Pass Rate",
+      stat3Value: "4.8★",
+      stat3Label: "Student Rating",
     },
     freeTest: {
       title: "Today's 10 Free Questions",
@@ -320,6 +415,13 @@ export const translations: Record<Locale, TranslationDict> = {
       buyCta: "Buy Now",
       comingSoon:
         "Packages will appear here once configured from the admin panel.",
+      bannerTitle: "Don't leave your license to luck",
+      bannerSubtitle:
+        "Students who complete a full test series pass on their first attempt 3x more often. Pick your plan and start today.",
+      trustLine: "🔒 Secure payment  ·  ⚡ Instant access  ·  ✓ Cancel anytime",
+      buyComingSoonTitle: "Coming Soon",
+      buyComingSoonDesc: "Payments aren't live yet - we're putting the finishing touches on it. Please check back soon.",
+      closeCta: "Close",
     },
     standards: {
       title: "Standard-wise Subjects",
@@ -394,6 +496,7 @@ export const translations: Record<Locale, TranslationDict> = {
       title: "Start your preparation today",
       subtitle: "Join thousands of students and succeed.",
       cta: "Register for Free",
+      trustLine: "No credit card stress — pay once, practice unlimited times.",
     },
     footer: {
       tagline:
@@ -450,6 +553,9 @@ export const translations: Record<Locale, TranslationDict> = {
       notAnswered: "Not answered",
       backHome: "Back to Home",
       explanationLabel: "Explanation",
+      dayPickerTitle: "Choose a day",
+      todayLabel: "Today",
+      dayLabel: "Day",
     },
     dashboard: {
       title: "Dashboard",
@@ -476,6 +582,33 @@ export const translations: Record<Locale, TranslationDict> = {
       savedEmptyCta: "Go to Dashboard",
       removeCta: "Remove",
       correctAnswerLabel: "Correct answer",
+    },
+    tickets: {
+      navLabel: "Support",
+      pageTitle: "My Tickets",
+      pageSubtitle: "Raise a query and chat with our support team.",
+      newTicketCta: "Raise New Ticket",
+      cancelCta: "Cancel",
+      subjectLabel: "Subject",
+      subjectPlaceholder: "e.g. Payment issue",
+      messageLabel: "Your query",
+      messagePlaceholder: "Describe your issue in detail...",
+      submitCta: "Submit Ticket",
+      submitting: "Submitting...",
+      noTickets: "No tickets yet",
+      noTicketsDesc: "Raise a new ticket if you have any query or issue.",
+      statusOpen: "Open",
+      statusAnswered: "Answered",
+      statusClosed: "Closed",
+      backCta: "Back",
+      composerPlaceholder: "Type your message...",
+      sendCta: "Send",
+      sending: "Sending...",
+      closedNotice: "This ticket has been closed.",
+      loginRequiredTitle: "Login Required",
+      loginRequiredDesc: "Please log in to view your tickets.",
+      errorTitle: "Something went wrong",
+      loadingLabel: "Loading...",
     },
   },
 };

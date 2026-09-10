@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import DailyFreeDayPicker from "@/components/quiz/DailyFreeDayPicker";
 
 type BatchQuestion = {
   id: string;
@@ -48,7 +50,17 @@ type AlreadyAttempted = {
 type Phase = "loading" | "unauthenticated" | "error" | "active" | "submitted" | "already-attempted";
 
 export default function DailyFreeQuizPage() {
+  return (
+    <Suspense fallback={null}>
+      <DailyFreeQuizView />
+    </Suspense>
+  );
+}
+
+function DailyFreeQuizView() {
   const { t, locale } = useLanguage();
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get("date") ?? undefined;
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -61,13 +73,17 @@ export default function DailyFreeQuizPage() {
 
   useEffect(() => {
     loadBatch();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateParam]);
 
   async function loadBatch() {
     setPhase("loading");
     setErrorMsg(null);
     try {
-      const res = await fetch("/api/quiz/daily-free");
+      const url = dateParam
+        ? `/api/quiz/daily-free?date=${encodeURIComponent(dateParam)}`
+        : "/api/quiz/daily-free";
+      const res = await fetch(url);
       if (res.status === 401) {
         setPhase("unauthenticated");
         return;
@@ -167,6 +183,7 @@ export default function DailyFreeQuizPage() {
   if (phase === "error") {
     return (
       <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
+        <DailyFreeDayPicker activeDate={dateParam} />
         <h1 className="text-xl font-bold text-slate-900">{t.quiz.errorTitle}</h1>
         {errorMsg && <p className="text-slate-600">{errorMsg}</p>}
         <button
@@ -183,6 +200,7 @@ export default function DailyFreeQuizPage() {
   if (phase === "already-attempted" && alreadyAttempted) {
     return (
       <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
+        <DailyFreeDayPicker activeDate={dateParam} />
         <h1 className="text-xl font-bold text-slate-900">{t.quiz.alreadyAttemptedTitle}</h1>
         <p className="text-slate-600">{t.quiz.alreadyAttemptedDesc}</p>
 
@@ -214,6 +232,7 @@ export default function DailyFreeQuizPage() {
   if (phase === "submitted" && result) {
     return (
       <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+        <DailyFreeDayPicker activeDate={dateParam} />
         <h1 className="text-center text-2xl font-bold text-slate-900">{t.quiz.resultTitle}</h1>
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -284,6 +303,7 @@ export default function DailyFreeQuizPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <DailyFreeDayPicker activeDate={dateParam} />
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-slate-600">
           {t.quiz.questionOf} {currentIndex + 1} / {batch.questions.length}

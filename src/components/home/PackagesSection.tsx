@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { formatPaiseAsRupees } from "@/lib/currency";
+import { TrophyIllustration } from "./illustrations";
 
 type Package = {
   id: string;
@@ -20,6 +21,7 @@ type Package = {
 export function PackagesSection() {
   const { t, locale } = useLanguage();
   const [packages, setPackages] = useState<Package[] | null>(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,7 +40,19 @@ export function PackagesSection() {
 
   return (
     <section id="packages" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <div className="text-center">
+      <div className="flex flex-col items-center gap-6 rounded-3xl bg-gradient-to-r from-slate-900 to-blue-900 p-8 text-center sm:flex-row sm:text-left sm:p-10">
+        <TrophyIllustration />
+        <div>
+          <h3 className="text-xl font-extrabold text-white sm:text-2xl">
+            {t.packages.bannerTitle}
+          </h3>
+          <p className="mt-2 max-w-xl text-sm text-blue-100 sm:text-base">
+            {t.packages.bannerSubtitle}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-12 text-center">
         <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
           {t.packages.title}
         </h2>
@@ -66,10 +80,14 @@ export function PackagesSection() {
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {packages.map((pkg) => {
             const finalPrice = pkg.priceInPaise - pkg.discountInPaise;
+            const discountPercent =
+              pkg.discountInPaise > 0 && pkg.priceInPaise > 0
+                ? Math.round((pkg.discountInPaise / pkg.priceInPaise) * 100)
+                : 0;
             return (
               <div
                 key={pkg.id}
-                className={`relative flex flex-col rounded-2xl border p-6 shadow-sm ${
+                className={`relative flex flex-col rounded-2xl border p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
                   pkg.isPopular
                     ? "border-blue-600 ring-2 ring-blue-600"
                     : "border-slate-200"
@@ -92,20 +110,42 @@ export function PackagesSection() {
                   {locale === "mr" ? pkg.descriptionMr : pkg.descriptionEn}
                 </p>
 
+                {pkg.features && pkg.features.length > 0 && (
+                  <ul className="mt-4 space-y-2">
+                    {pkg.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="flex items-start gap-2 text-sm text-slate-600"
+                      >
+                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] text-green-700">
+                          ✓
+                        </span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
                 <div className="mt-6 flex items-baseline gap-2">
                   <span className="text-3xl font-extrabold text-slate-900">
                     {formatPaiseAsRupees(finalPrice)}
                   </span>
                   {pkg.discountInPaise > 0 && (
-                    <span className="text-sm text-slate-400 line-through">
-                      {formatPaiseAsRupees(pkg.priceInPaise)}
-                    </span>
+                    <>
+                      <span className="text-sm text-slate-400 line-through">
+                        {formatPaiseAsRupees(pkg.priceInPaise)}
+                      </span>
+                      <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
+                        {discountPercent}% OFF
+                      </span>
+                    </>
                   )}
                 </div>
 
                 <button
                   type="button"
-                  className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold ${
+                  onClick={() => setShowComingSoon(true)}
+                  className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${
                     pkg.isPopular
                       ? "bg-blue-600 text-white hover:bg-blue-700"
                       : "border border-slate-300 text-slate-700 hover:border-blue-600 hover:text-blue-600"
@@ -116,6 +156,40 @@ export function PackagesSection() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {packages !== null && packages.length > 0 && (
+        <p className="mt-8 text-center text-sm font-medium text-slate-500">
+          {t.packages.trustLine}
+        </p>
+      )}
+
+      {showComingSoon && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4"
+          onClick={() => setShowComingSoon(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold text-slate-900">
+              {t.packages.buyComingSoonTitle}
+            </h3>
+            <p className="mt-2 text-sm text-slate-600">
+              {t.packages.buyComingSoonDesc}
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowComingSoon(false)}
+              className="mt-6 w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              {t.packages.closeCta}
+            </button>
+          </div>
         </div>
       )}
     </section>

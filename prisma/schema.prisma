@@ -78,6 +78,12 @@ enum PurchaseStatus {
   REVOKED
 }
 
+enum TicketStatus {
+  OPEN
+  ANSWERED
+  CLOSED
+}
+
 // ---------- Auth / Users ----------
 
 model User {
@@ -102,6 +108,8 @@ model User {
   dailyFreeProgress  DailyFreeProgress[]
   savedQuestions     SavedQuestion[]
   siteVisits         SiteVisit[]
+  tickets            Ticket[]
+  ticketMessages     TicketMessage[]
 
   @@index([role])
 }
@@ -442,4 +450,33 @@ model SavedQuestion {
   @@unique([userId, questionId])
   @@index([userId])
   @@index([questionId])
+}
+
+// A support query raised by a user, answered by admins as a message thread.
+model Ticket {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  status    TicketStatus @default(OPEN)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  messages  TicketMessage[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([ticketId])
+  @@index([senderId])
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type AdminStats = {
   totalUsers: number;
@@ -33,16 +34,21 @@ type AdminStats = {
   }[];
 };
 
-type Phase = "loading" | "forbidden" | "error" | "ready";
+type Phase = "loading" | "unauthenticated" | "forbidden" | "error" | "ready";
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("loading");
   const [stats, setStats] = useState<AdminStats | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/stats")
       .then(async (res) => {
-        if (res.status === 403 || res.status === 401) {
+        if (res.status === 401) {
+          setPhase("unauthenticated");
+          return;
+        }
+        if (res.status === 403) {
           setPhase("forbidden");
           return;
         }
@@ -57,7 +63,13 @@ export default function AdminDashboardPage() {
       .catch(() => setPhase("error"));
   }, []);
 
-  if (phase === "loading") {
+  useEffect(() => {
+    if (phase === "unauthenticated") {
+      router.replace("/login?redirect=/admin");
+    }
+  }, [phase, router]);
+
+  if (phase === "loading" || phase === "unauthenticated") {
     return (
       <main className="mx-auto flex min-h-[60vh] max-w-5xl items-center justify-center px-4 text-slate-600">
         Loading…
@@ -69,9 +81,9 @@ export default function AdminDashboardPage() {
     return (
       <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
         <h1 className="text-xl font-bold text-slate-900">Access denied</h1>
-        <p className="text-slate-600">You need an admin account to view this page.</p>
-        <Link href="/login" className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
-          Go to login
+        <p className="text-slate-600">This account doesn&apos;t have admin access. Log in with an admin account to continue.</p>
+        <Link href="/login?redirect=/admin" className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+          Switch account
         </Link>
       </main>
     );
@@ -87,8 +99,18 @@ export default function AdminDashboardPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-      <p className="mt-1 text-slate-600">Platform-wide overview.</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
+          <p className="mt-1 text-slate-600">Platform-wide overview.</p>
+        </div>
+        <Link
+          href="/admin/tickets"
+          className="whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          Support Tickets
+        </Link>
+      </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
         <StatCard

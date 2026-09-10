@@ -63,6 +63,11 @@ export function Header() {
               {t.nav.dashboard}
             </Link>
           )}
+          {user && (
+            <Link href="/tickets" className="hover:text-blue-600">
+              {t.tickets.navLabel}
+            </Link>
+          )}
           {user?.role === "ADMIN" && (
             <Link href="/admin" className="hover:text-blue-600">
               Admin
@@ -139,6 +144,13 @@ export function Header() {
                   onClick={() => setOpen(false)}
                 >
                   {t.nav.dashboard}
+                </Link>
+                <Link
+                  href="/tickets"
+                  className="text-sm font-medium text-slate-700"
+                  onClick={() => setOpen(false)}
+                >
+                  {t.tickets.navLabel}
                 </Link>
                 {user.role === "ADMIN" && (
                   <Link

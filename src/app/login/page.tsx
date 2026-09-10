@@ -1,14 +1,28 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { saveClientUser } from "@/lib/auth/client-session";
 
+function isSafeRedirect(path: string | null): path is string {
+  return !!path && path.startsWith("/") && !path.startsWith("//");
+}
+
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const { t } = useLanguage();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
 
   const [emailOrMobile, setEmailOrMobile] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +49,7 @@ export default function LoginPage() {
       }
 
       saveClientUser(data.user);
-      router.push("/dashboard");
+      router.push(isSafeRedirect(redirectTo) ? redirectTo : "/dashboard");
     } catch {
       setError("Network error. Please try again.");
     } finally {

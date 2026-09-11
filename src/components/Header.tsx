@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { LanguageToggle } from "./LanguageToggle";
 import {
@@ -16,6 +16,8 @@ import {
 export function Header() {
   const { t } = useLanguage();
   const router = useRouter();
+  const pathname = usePathname();
+  const isAdminPanel = pathname?.startsWith("/admin") ?? false;
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<ClientUser | null>(null);
 
@@ -69,22 +71,33 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-700 md:flex">
-          <Link href="/" className="hover:text-blue-600">
-            {t.nav.home}
-          </Link>
-          <Link href="/#packages" className="hover:text-blue-600">
-            {t.nav.packages}
-          </Link>
-          <Link href="/download" className="hover:text-blue-600">
-            {t.nav.downloadApp}
-          </Link>
-          {user && (
+          {!isAdminPanel && (
+            <Link href="/" className="hover:text-blue-600">
+              {t.nav.home}
+            </Link>
+          )}
+          {!isAdminPanel && (
+            <Link href="/#packages" className="hover:text-blue-600">
+              {t.nav.packages}
+            </Link>
+          )}
+          {!isAdminPanel && (
+            <Link href="/download" className="hover:text-blue-600">
+              {t.nav.downloadApp}
+            </Link>
+          )}
+          {user && !isAdminPanel && (
             <Link href="/dashboard" className="hover:text-blue-600">
               {t.nav.dashboard}
             </Link>
           )}
-          {user && (
+          {user && user.role !== "ADMIN" && (
             <Link href="/tickets" className="hover:text-blue-600">
+              {t.tickets.navLabel}
+            </Link>
+          )}
+          {user?.role === "ADMIN" && (
+            <Link href="/admin/tickets" className="hover:text-blue-600">
               {t.tickets.navLabel}
             </Link>
           )}
@@ -99,7 +112,10 @@ export function Header() {
           <LanguageToggle />
           {user ? (
             <>
-              <Link href="/dashboard" className="text-sm font-medium text-slate-700 hover:text-blue-600">
+              <Link
+                href={isAdminPanel ? "/admin" : "/dashboard"}
+                className="text-sm font-medium text-slate-700 hover:text-blue-600"
+              >
                 {user.name}
               </Link>
               <button
@@ -142,38 +158,46 @@ export function Header() {
         <div className="border-t border-slate-200 px-4 py-4 md:hidden">
           <div className="flex flex-col gap-4">
             <LanguageToggle />
-            <Link
-              href="/"
-              className="text-sm font-medium text-slate-700"
-              onClick={() => setOpen(false)}
-            >
-              {t.nav.home}
-            </Link>
-            <Link
-              href="/#packages"
-              className="text-sm font-medium text-slate-700"
-              onClick={() => setOpen(false)}
-            >
-              {t.nav.packages}
-            </Link>
-            <Link
-              href="/download"
-              className="text-sm font-medium text-slate-700"
-              onClick={() => setOpen(false)}
-            >
-              {t.nav.downloadApp}
-            </Link>
+            {!isAdminPanel && (
+              <Link
+                href="/"
+                className="text-sm font-medium text-slate-700"
+                onClick={() => setOpen(false)}
+              >
+                {t.nav.home}
+              </Link>
+            )}
+            {!isAdminPanel && (
+              <Link
+                href="/#packages"
+                className="text-sm font-medium text-slate-700"
+                onClick={() => setOpen(false)}
+              >
+                {t.nav.packages}
+              </Link>
+            )}
+            {!isAdminPanel && (
+              <Link
+                href="/download"
+                className="text-sm font-medium text-slate-700"
+                onClick={() => setOpen(false)}
+              >
+                {t.nav.downloadApp}
+              </Link>
+            )}
             {user ? (
               <>
+                {!isAdminPanel && (
+                  <Link
+                    href="/dashboard"
+                    className="text-sm font-medium text-slate-700"
+                    onClick={() => setOpen(false)}
+                  >
+                    {t.nav.dashboard}
+                  </Link>
+                )}
                 <Link
-                  href="/dashboard"
-                  className="text-sm font-medium text-slate-700"
-                  onClick={() => setOpen(false)}
-                >
-                  {t.nav.dashboard}
-                </Link>
-                <Link
-                  href="/tickets"
+                  href={user.role === "ADMIN" ? "/admin/tickets" : "/tickets"}
                   className="text-sm font-medium text-slate-700"
                   onClick={() => setOpen(false)}
                 >

@@ -75,11 +75,11 @@ export default function TicketDetailPage() {
     }
   }, [phase, router, ticketId]);
 
-  async function handleSend(body: string): Promise<boolean> {
+  async function handleSend(body: string, attachments: string[]): Promise<boolean> {
     const res = await fetch(`/api/tickets/${ticketId}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body }),
+      body: JSON.stringify({ body, attachments }),
     });
     if (!res.ok) return false;
     const data = await res.json();

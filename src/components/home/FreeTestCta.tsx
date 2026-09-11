@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { FreeTestLink } from "@/components/quiz/FreeTestLink";
 
 export function FreeTestCta() {
   const { t } = useLanguage();
@@ -17,12 +17,9 @@ export function FreeTestCta() {
             {t.freeTest.description}
           </p>
         </div>
-        <Link
-          href="/quiz/daily-free"
-          className="shrink-0 rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-blue-700"
-        >
+        <FreeTestLink className="shrink-0 rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-blue-700">
           {t.freeTest.cta}
-        </Link>
+        </FreeTestLink>
       </div>
     </section>
   );

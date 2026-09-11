@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/auth/session";
@@ -13,13 +14,21 @@ export async function POST(req: NextRequest) {
   const visitorId = req.cookies.get(VISITOR_COOKIE)?.value ?? randomUUID();
   const authUser = getAuthUser(req);
 
-  await prisma.siteVisit.create({
-    data: {
-      path,
-      visitorId,
-      userId: authUser?.id,
-    },
-  });
+  try {
+    await prisma.siteVisit.create({
+      data: {
+        path,
+        visitorId,
+        userId: authUser?.id,
+      },
+    });
+  } catch (err) {
+    // A JWT can outlive the user it points to (e.g. the account was deleted,
+    // or a dev DB got reset) - fall back to an anonymous visit instead of 500ing.
+    const isMissingUser = err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003";
+    if (!isMissingUser) throw err;
+    await prisma.siteVisit.create({ data: { path, visitorId, userId: null } });
+  }
 
   const res = NextResponse.json({ ok: true }, { status: 200 });
   res.cookies.set(VISITOR_COOKIE, visitorId, {

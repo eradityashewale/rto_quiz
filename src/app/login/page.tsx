@@ -5,10 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { saveClientUser } from "@/lib/auth/client-session";
-
-function isSafeRedirect(path: string | null): path is string {
-  return !!path && path.startsWith("/") && !path.startsWith("//");
-}
+import { isSafeRedirect } from "@/lib/redirect";
 
 export default function LoginPage() {
   return (
@@ -119,7 +116,10 @@ function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-slate-600">
         {t.auth.noAccount}{" "}
-        <Link href="/register" className="font-semibold text-blue-600">
+        <Link
+          href={isSafeRedirect(redirectTo) ? `/register?redirect=${encodeURIComponent(redirectTo)}` : "/register"}
+          className="font-semibold text-blue-600"
+        >
           {t.auth.goToRegister}
         </Link>
       </p>

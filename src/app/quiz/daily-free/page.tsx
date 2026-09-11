@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import DailyFreeDayPicker from "@/components/quiz/DailyFreeDayPicker";
 
@@ -59,8 +59,12 @@ export default function DailyFreeQuizPage() {
 
 function DailyFreeQuizView() {
   const { t, locale } = useLanguage();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const dateParam = searchParams.get("date") ?? undefined;
+  const currentPath = dateParam
+    ? `/quiz/daily-free?date=${encodeURIComponent(dateParam)}`
+    : "/quiz/daily-free";
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -75,6 +79,13 @@ function DailyFreeQuizView() {
     loadBatch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateParam]);
+
+  useEffect(() => {
+    if (phase === "unauthenticated") {
+      router.replace(`/register?redirect=${encodeURIComponent(currentPath)}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   async function loadBatch() {
     setPhase("loading");
@@ -164,16 +175,20 @@ function DailyFreeQuizView() {
   }
 
   if (phase === "unauthenticated") {
+    const registerHref = `/register?redirect=${encodeURIComponent(currentPath)}`;
     return (
       <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
         <h1 className="text-xl font-bold text-slate-900">{t.quiz.loginRequiredTitle}</h1>
         <p className="text-slate-600">{t.quiz.loginRequiredDesc}</p>
         <div className="flex gap-3">
-          <Link href="/login" className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
-            {t.auth.loginCta}
-          </Link>
-          <Link href="/register" className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:border-blue-600 hover:text-blue-600">
+          <Link href={registerHref} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
             {t.auth.registerCta}
+          </Link>
+          <Link
+            href={`/login?redirect=${encodeURIComponent(currentPath)}`}
+            className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:border-blue-600 hover:text-blue-600"
+          >
+            {t.auth.loginCta}
           </Link>
         </div>
       </main>

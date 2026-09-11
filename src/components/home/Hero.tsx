@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { FreeTestLink } from "@/components/quiz/FreeTestLink";
 import { LicenseCardIllustration } from "./illustrations";
 
 export function Hero() {
@@ -31,12 +32,9 @@ export function Hero() {
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
-            <Link
-              href="/quiz/daily-free"
-              className="w-full rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md sm:w-auto"
-            >
+            <FreeTestLink className="w-full rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md sm:w-auto">
               {t.hero.primaryCta}
-            </Link>
+            </FreeTestLink>
             <Link
               href="#packages"
               className="w-full rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-base font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-blue-600 hover:text-blue-600 sm:w-auto"

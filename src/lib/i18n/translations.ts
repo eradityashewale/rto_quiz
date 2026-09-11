@@ -149,6 +149,8 @@ export interface TranslationDict {
     subjectPlaceholder: string;
     messageLabel: string;
     messagePlaceholder: string;
+    attachLabel: string;
+    attachCta: string;
     submitCta: string;
     submitting: string;
     noTickets: string;
@@ -396,6 +398,8 @@ export const translations: Record<Locale, TranslationDict> = {
       subjectPlaceholder: "उदा. पेमेंट समस्या",
       messageLabel: "तुमचा प्रश्न",
       messagePlaceholder: "तुमची अडचण सविस्तर लिहा...",
+      attachLabel: "फोटो जोडा (ऐच्छिक)",
+      attachCta: "📎 फोटो निवडा",
       submitCta: "तक्रार सबमिट करा",
       submitting: "सबमिट करत आहे...",
       noTickets: "अजून कोणतीही तक्रार नाही",
@@ -642,6 +646,8 @@ export const translations: Record<Locale, TranslationDict> = {
       subjectPlaceholder: "e.g. Payment issue",
       messageLabel: "Your query",
       messagePlaceholder: "Describe your issue in detail...",
+      attachLabel: "Attach images (optional)",
+      attachCta: "📎 Choose images",
       submitCta: "Submit Ticket",
       submitting: "Submitting...",
       noTickets: "No tickets yet",

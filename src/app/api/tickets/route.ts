@@ -25,6 +25,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const ticket = await createTicket(user.id, parsed.data.subject, parsed.data.message);
+  const ticket = await createTicket(user.id, parsed.data.subject, parsed.data.message, parsed.data.attachments);
   return NextResponse.json({ ticket }, { status: 201 });
 }

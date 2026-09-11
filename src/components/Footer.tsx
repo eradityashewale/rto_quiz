@@ -1,11 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function Footer() {
   const { t } = useLanguage();
+  const pathname = usePathname();
   const year = new Date().getFullYear();
+
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
     <footer className="border-t border-slate-200 bg-slate-50">

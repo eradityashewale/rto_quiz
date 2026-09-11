@@ -1,10 +1,11 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { TicketStatusBadge } from "@/components/tickets/TicketStatusBadge";
+import { MAX_TICKET_ATTACHMENTS, processImageFiles } from "@/lib/tickets/attachments-client";
 
 type TicketSummary = {
   id: string;
@@ -26,8 +27,11 @@ export default function TicketsPage() {
   const [showForm, setShowForm] = useState(false);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [attachError, setAttachError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     loadTickets();
@@ -57,6 +61,18 @@ export default function TicketsPage() {
       .catch(() => setPhase("error"));
   }
 
+  async function handleFilesSelected(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const { accepted, rejected } = await processImageFiles(files, MAX_TICKET_ATTACHMENTS - attachments.length);
+    if (accepted.length > 0) setAttachments((prev) => [...prev, ...accepted]);
+    setAttachError(rejected.length > 0 ? rejected[0] : null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function removeAttachment(index: number) {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
     setCreating(true);
@@ -66,7 +82,7 @@ export default function TicketsPage() {
       const res = await fetch("/api/tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, message }),
+        body: JSON.stringify({ subject, message, attachments }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -136,6 +152,44 @@ export default function TicketsPage() {
               maxLength={4000}
               required
             />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">{t.tickets.attachLabel}</label>
+            {attachments.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {attachments.map((src, i) => (
+                  <div key={i} className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt="Attachment preview" className="h-16 w-16 rounded-lg border border-slate-200 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(i)}
+                      className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-xs text-white"
+                      aria-label="Remove image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={attachments.length >= MAX_TICKET_ATTACHMENTS}
+              className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {t.tickets.attachCta}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFilesSelected(e.target.files)}
+            />
+            {attachError && <p className="mt-1 text-xs text-red-600">{attachError}</p>}
           </div>
           {createError && <p className="text-sm text-red-600">{createError}</p>}
           <button

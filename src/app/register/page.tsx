@@ -1,13 +1,24 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { Suspense, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { isSafeRedirect } from "@/lib/redirect";
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
   const { t } = useLanguage();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,7 +46,10 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+      const verifyUrl = isSafeRedirect(redirectTo)
+        ? `/verify-otp?email=${encodeURIComponent(email)}&redirect=${encodeURIComponent(redirectTo)}`
+        : `/verify-otp?email=${encodeURIComponent(email)}`;
+      router.push(verifyUrl);
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -143,7 +157,10 @@ export default function RegisterPage() {
 
       <p className="mt-6 text-center text-sm text-slate-600">
         {t.auth.haveAccount}{" "}
-        <Link href="/login" className="font-semibold text-blue-600">
+        <Link
+          href={isSafeRedirect(redirectTo) ? `/login?redirect=${encodeURIComponent(redirectTo)}` : "/login"}
+          className="font-semibold text-blue-600"
+        >
           {t.auth.goToLogin}
         </Link>
       </p>

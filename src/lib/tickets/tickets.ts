@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 export type TicketMessageDto = {
   id: string;
   body: string;
+  attachments: string[];
   senderId: string;
   senderName: string;
   senderRole: string;
@@ -37,6 +38,7 @@ export type TicketSummaryDto = {
 function toMessageDto(m: {
   id: string;
   body: string;
+  attachments: string[];
   senderId: string;
   createdAt: Date;
   sender: { name: string; role: string };
@@ -44,6 +46,7 @@ function toMessageDto(m: {
   return {
     id: m.id,
     body: m.body,
+    attachments: m.attachments,
     senderId: m.senderId,
     senderName: m.sender.name,
     senderRole: m.sender.role,
@@ -51,12 +54,17 @@ function toMessageDto(m: {
   };
 }
 
-export async function createTicket(userId: string, subject: string, message: string): Promise<TicketDto> {
+export async function createTicket(
+  userId: string,
+  subject: string,
+  message: string,
+  attachments: string[] = []
+): Promise<TicketDto> {
   const ticket = await prisma.ticket.create({
     data: {
       userId,
       subject,
-      messages: { create: { senderId: userId, body: message } },
+      messages: { create: { senderId: userId, body: message, attachments } },
     },
     include: {
       user: { select: { name: true, email: true } },
@@ -125,12 +133,17 @@ export async function getUserTicket(userId: string, ticketId: string): Promise<T
   };
 }
 
-export async function addUserMessage(userId: string, ticketId: string, body: string): Promise<TicketDto | null> {
+export async function addUserMessage(
+  userId: string,
+  ticketId: string,
+  body: string,
+  attachments: string[] = []
+): Promise<TicketDto | null> {
   const existing = await prisma.ticket.findUnique({ where: { id: ticketId }, select: { userId: true, status: true } });
   if (!existing || existing.userId !== userId || existing.status === "CLOSED") return null;
 
   await prisma.$transaction([
-    prisma.ticketMessage.create({ data: { ticketId, senderId: userId, body } }),
+    prisma.ticketMessage.create({ data: { ticketId, senderId: userId, body, attachments } }),
     prisma.ticket.update({ where: { id: ticketId }, data: { status: TicketStatus.OPEN } }),
   ]);
 
@@ -185,12 +198,17 @@ export async function getTicketForAdmin(ticketId: string): Promise<TicketDto | n
   };
 }
 
-export async function addAdminReply(adminId: string, ticketId: string, body: string): Promise<TicketDto | null> {
+export async function addAdminReply(
+  adminId: string,
+  ticketId: string,
+  body: string,
+  attachments: string[] = []
+): Promise<TicketDto | null> {
   const existing = await prisma.ticket.findUnique({ where: { id: ticketId }, select: { id: true } });
   if (!existing) return null;
 
   await prisma.$transaction([
-    prisma.ticketMessage.create({ data: { ticketId, senderId: adminId, body } }),
+    prisma.ticketMessage.create({ data: { ticketId, senderId: adminId, body, attachments } }),
     prisma.ticket.update({ where: { id: ticketId }, data: { status: TicketStatus.ANSWERED } }),
   ]);
 

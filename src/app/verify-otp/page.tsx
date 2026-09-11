@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { saveClientUser } from "@/lib/auth/client-session";
+import { isSafeRedirect } from "@/lib/redirect";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
@@ -13,25 +14,39 @@ function VerifyOtpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
+  const redirectTo = searchParams.get("redirect");
+  const registerHref = isSafeRedirect(redirectTo) ? `/register?redirect=${encodeURIComponent(redirectTo)}` : "/register";
 
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  // Track the absolute moment the cooldown ends (rather than a
+  // decrement-by-1 counter) so the display can't get stuck if a tick is
+  // missed — e.g. the browser throttles timers in a backgrounded tab.
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+    if (!cooldownUntil) return;
+
+    function tick() {
+      const remaining = Math.max(0, Math.ceil(((cooldownUntil as number) - Date.now()) / 1000));
+      setCooldown(remaining);
+      if (remaining <= 0) setCooldownUntil(null);
+    }
+
+    tick();
+    const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
-  }, [cooldown]);
+  }, [cooldownUntil]);
 
   useEffect(() => {
     if (!email) {
-      router.replace("/register");
+      router.replace(registerHref);
     }
-  }, [email, router]);
+  }, [email, router, registerHref]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -54,7 +69,7 @@ function VerifyOtpForm() {
       if (data.user) {
         saveClientUser(data.user);
       }
-      router.push("/dashboard");
+      router.push(isSafeRedirect(redirectTo) ? redirectTo : "/dashboard");
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -82,7 +97,7 @@ function VerifyOtpForm() {
       }
 
       setInfo(data.message ?? null);
-      setCooldown(RESEND_COOLDOWN_SECONDS);
+      setCooldownUntil(Date.now() + RESEND_COOLDOWN_SECONDS * 1000);
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -147,7 +162,7 @@ function VerifyOtpForm() {
         >
           {cooldown > 0 ? `${t.auth.resendWait} (${cooldown}s)` : t.auth.resendCta}
         </button>
-        <Link href="/register" className="text-slate-600 hover:text-blue-600">
+        <Link href={registerHref} className="text-slate-600 hover:text-blue-600">
           {t.auth.changeEmail}
         </Link>
       </div>

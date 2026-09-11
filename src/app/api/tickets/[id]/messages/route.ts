@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  const ticket = await addUserMessage(user.id, id, parsed.data.body);
+  const ticket = await addUserMessage(user.id, id, parsed.data.body, parsed.data.attachments);
   if (!ticket) {
     return NextResponse.json({ error: "Ticket not found or closed" }, { status: 404 });
   }

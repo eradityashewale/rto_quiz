@@ -7,6 +7,11 @@
 
 const STORAGE_KEY = "rto-quiz-user";
 
+// Fired whenever the client-side session copy changes, so mounted components
+// (e.g. the Header) can re-sync immediately after a login/logout that happens
+// on a different page without waiting for a remount or a hard refresh.
+export const AUTH_CHANGED_EVENT = "rto-quiz-auth-changed";
+
 export type ClientUser = {
   id: string;
   name: string;
@@ -18,6 +23,7 @@ export type ClientUser = {
 export function saveClientUser(user: ClientUser) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
   } catch {
     // ignore
   }
@@ -35,6 +41,7 @@ export function getClientUser(): ClientUser | null {
 export function clearClientUser() {
   try {
     window.localStorage.removeItem(STORAGE_KEY);
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
   } catch {
     // ignore
   }

@@ -1,7 +1,14 @@
 export type Locale = "mr" | "en";
 
 export interface TranslationDict {
-  nav: { home: string; packages: string; login: string; register: string; dashboard: string };
+  nav: {
+    home: string;
+    packages: string;
+    login: string;
+    register: string;
+    dashboard: string;
+    downloadApp: string;
+  };
   hero: {
     badge: string;
     title: string;
@@ -120,6 +127,18 @@ export interface TranslationDict {
     removeCta: string;
     correctAnswerLabel: string;
   };
+  downloadPage: {
+    title: string;
+    subtitle: string;
+    downloadCta: string;
+    fileNote: string;
+    stepsTitle: string;
+    step1: string;
+    step2: string;
+    step3: string;
+    step4: string;
+    allReleasesCta: string;
+  };
   tickets: {
     navLabel: string;
     pageTitle: string;
@@ -157,6 +176,7 @@ export const translations: Record<Locale, TranslationDict> = {
       login: "लॉगिन",
       register: "नोंदणी करा",
       dashboard: "डॅशबोर्ड",
+      downloadApp: "ॲप डाउनलोड करा",
     },
     hero: {
       badge: "🏆 महाराष्ट्रातील #1 RTO परीक्षा तयारी प्लॅटफॉर्म",
@@ -352,6 +372,20 @@ export const translations: Record<Locale, TranslationDict> = {
       removeCta: "काढून टाका",
       correctAnswerLabel: "बरोबर उत्तर",
     },
+    downloadPage: {
+      title: "RTO Quiz Android ॲप डाउनलोड करा",
+      subtitle:
+        "मोबाईलवर इन्स्टॉल करा आणि कधीही, कुठेही सर्व मोफत टेस्ट व Test Series सोडवा.",
+      downloadCta: "APK डाउनलोड करा",
+      fileNote: "थेट .apk फाईल — Android 8.0 आणि त्यावरील आवृत्तीसाठी.",
+      stepsTitle: "इन्स्टॉल कसे करावे",
+      step1: "वरील बटणावर क्लिक करून APK फाईल डाउनलोड करा.",
+      step2:
+        'फाईल उघडताना "Install unknown apps" परवानगी मागितली तर ती चालू करा (Settings मध्ये एकदाच करावे लागते).',
+      step3: "डाउनलोड झालेली rto-quiz.apk फाईल उघडा आणि Install वर टॅप करा.",
+      step4: "ॲप उघडा, लॉगिन करा आणि सराव सुरू करा — वेबसाईटप्रमाणेच सर्व सुविधा उपलब्ध आहेत.",
+      allReleasesCta: "जुन्या आवृत्त्या पहा",
+    },
     tickets: {
       navLabel: "तक्रारी",
       pageTitle: "माझ्या तक्रारी",
@@ -387,6 +421,7 @@ export const translations: Record<Locale, TranslationDict> = {
       login: "Login",
       register: "Register",
       dashboard: "Dashboard",
+      downloadApp: "Download App",
     },
     hero: {
       badge: "🏆 Maharashtra's #1 RTO Exam Prep Platform",
@@ -582,6 +617,20 @@ export const translations: Record<Locale, TranslationDict> = {
       savedEmptyCta: "Go to Dashboard",
       removeCta: "Remove",
       correctAnswerLabel: "Correct answer",
+    },
+    downloadPage: {
+      title: "Download the RTO Quiz Android App",
+      subtitle:
+        "Install it on your phone and attempt every free test and test series anytime, anywhere.",
+      downloadCta: "Download APK",
+      fileNote: "Direct .apk file — works on Android 8.0 and above.",
+      stepsTitle: "How to install",
+      step1: "Tap the button above to download the APK file.",
+      step2:
+        'If prompted, allow "Install unknown apps" for your browser (a one-time setting in Android Settings).',
+      step3: "Open the downloaded rto-quiz.apk file and tap Install.",
+      step4: "Open the app, log in, and start practicing — every feature from the website is available.",
+      allReleasesCta: "View older versions",
     },
     tickets: {
       navLabel: "Support",

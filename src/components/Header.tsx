@@ -5,7 +5,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { LanguageToggle } from "./LanguageToggle";
-import { clearClientUser, getClientUser, saveClientUser, type ClientUser } from "@/lib/auth/client-session";
+import {
+  AUTH_CHANGED_EVENT,
+  clearClientUser,
+  getClientUser,
+  saveClientUser,
+  type ClientUser,
+} from "@/lib/auth/client-session";
 
 export function Header() {
   const { t } = useLanguage();
@@ -30,6 +36,17 @@ export function Header() {
         }
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    // Login/OTP/logout happen on other pages via client-side navigation, so the
+    // Header (mounted once in the root layout) would otherwise never notice —
+    // this keeps it in sync the moment any page saves or clears the session.
+    function syncFromStorage() {
+      setUser(getClientUser());
+    }
+    window.addEventListener(AUTH_CHANGED_EVENT, syncFromStorage);
+    return () => window.removeEventListener(AUTH_CHANGED_EVENT, syncFromStorage);
   }, []);
 
   async function handleLogout() {
@@ -57,6 +74,9 @@ export function Header() {
           </Link>
           <Link href="/#packages" className="hover:text-blue-600">
             {t.nav.packages}
+          </Link>
+          <Link href="/download" className="hover:text-blue-600">
+            {t.nav.downloadApp}
           </Link>
           {user && (
             <Link href="/dashboard" className="hover:text-blue-600">
@@ -135,6 +155,13 @@ export function Header() {
               onClick={() => setOpen(false)}
             >
               {t.nav.packages}
+            </Link>
+            <Link
+              href="/download"
+              className="text-sm font-medium text-slate-700"
+              onClick={() => setOpen(false)}
+            >
+              {t.nav.downloadApp}
             </Link>
             {user ? (
               <>

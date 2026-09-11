@@ -1,0 +1,79 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_url:
+        description: "Deployed site URL the app should load (overrides the APP_URL repo variable for this run)"
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - "capacitor.config.ts"
+      - "android/**"
+      - "package.json"
+      - ".github/workflows/build-android.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Set the APP_URL repository variable (Settings → Secrets and variables →
+      # Actions → Variables) to your deployed site once it's live. Until then
+      # this falls back to a placeholder and the app won't load real content.
+      CAPACITOR_SERVER_URL: ${{ inputs.server_url || vars.APP_URL || 'https://your-deployed-domain.example.com' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk rto-quiz.apk
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rto-quiz-apk
+          path: rto-quiz.apk
+
+      - name: Publish/update Android release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: "Android app (latest)"
+          body: |
+            Auto-built from commit ${{ github.sha }}.
+            Loads: ${{ env.CAPACITOR_SERVER_URL }}
+
+            Download link used by the site's "Download App" page:
+            https://github.com/${{ github.repository }}/releases/latest/download/rto-quiz.apk
+          make_latest: true
+          files: rto-quiz.apk

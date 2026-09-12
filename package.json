@@ -13,6 +13,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed-exam-categories": "tsx prisma/seedExamCategories.ts",
+    "db:seed-package-tests": "tsx prisma/seedPackageTests.ts",
     "db:import": "tsx prisma/importQuestions.ts",
     "make:admin": "tsx prisma/makeAdmin.ts",
     "reset:password": "tsx prisma/resetPassword.ts"

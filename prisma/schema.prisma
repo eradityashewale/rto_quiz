@@ -141,6 +141,23 @@ model PendingRegistration {
   updatedAt    DateTime @updatedAt
 }
 
+// ---------- Exam coverage ----------
+
+// The recruitment exams (MPSC Group B/C cadres, RTO, etc.) this platform's
+// shared question bank prepares candidates for. Purely informational/
+// selection metadata - it does not partition question content, since MPSC's
+// combined preliminary exam uses one common paper across these cadres.
+model ExamCategory {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  nameMr    String
+  nameEn    String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // ---------- Content hierarchy ----------
 
 model Standard {

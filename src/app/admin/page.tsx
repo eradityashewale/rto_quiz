@@ -104,12 +104,20 @@ export default function AdminDashboardPage() {
           <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
           <p className="mt-1 text-slate-600">Platform-wide overview.</p>
         </div>
-        <Link
-          href="/admin/tickets"
-          className="whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
-        >
-          Support Tickets
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/admin/leads"
+            className="whitespace-nowrap rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+          >
+            Lead Management
+          </Link>
+          <Link
+            href="/admin/tickets"
+            className="whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            Support Tickets
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">

@@ -1,5 +1,6 @@
 import { Hero } from "@/components/home/Hero";
 import { FreeTestCta } from "@/components/home/FreeTestCta";
+import { ExamCategoriesSection } from "@/components/home/ExamCategoriesSection";
 import { PackagesSection } from "@/components/home/PackagesSection";
 import { StandardsSection } from "@/components/home/StandardsSection";
 import { HowItWorks } from "@/components/home/HowItWorks";
@@ -13,6 +14,7 @@ export default function Home() {
   return (
     <main>
       <Hero />
+      <ExamCategoriesSection />
       <FreeTestCta />
       <PackagesSection />
       <StandardsSection />

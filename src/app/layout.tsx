@@ -6,9 +6,9 @@ import { Footer } from "@/components/Footer";
 import { VisitTracker } from "@/components/VisitTracker";
 
 export const metadata: Metadata = {
-  title: "RTO Quiz — RTO Exam Test Series for Maharashtra",
+  title: "RTO Quiz — RTO & MPSC Group C Exam Test Series for Maharashtra",
   description:
-    "Bilingual (Marathi + English) RTO exam preparation platform. Practice daily for free, or take a full test series.",
+    "Bilingual (Marathi + English) preparation platform for RTO and MPSC Group C exams (Talathi, Clerk-Typist, Tax Assistant, Assistant Motor Vehicle Inspector, and more). Practice daily for free, or take a full test series.",
 };
 
 export default function RootLayout({

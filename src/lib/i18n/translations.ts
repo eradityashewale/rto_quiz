@@ -38,6 +38,7 @@ export interface TranslationDict {
     closeCta: string;
   };
   standards: { title: string; subtitle: string; comingSoon: string };
+  examCategories: { title: string; subtitle: string; footnote: string };
   howItWorks: {
     title: string;
     steps: { title: string; desc: string }[];
@@ -181,9 +182,9 @@ export const translations: Record<Locale, TranslationDict> = {
       downloadApp: "ॲप डाउनलोड करा",
     },
     hero: {
-      badge: "🏆 महाराष्ट्रातील #1 RTO परीक्षा तयारी प्लॅटफॉर्म",
-      title: "RTO परीक्षेच्या तयारीला योग्य दिशा द्या",
-      subtitle: "दररोज 10 प्रश्न मोफत सोडवा आणि तुमची तयारी तपासा.",
+      badge: "🏆 महाराष्ट्रातील #1 RTO व MPSC गट-क परीक्षा तयारी प्लॅटफॉर्म",
+      title: "RTO, तलाठी, क्लर्क-टायपिस्ट आणि सर्व MPSC गट-क परीक्षांच्या तयारीला योग्य दिशा द्या",
+      subtitle: "दररोज 10 प्रश्न मोफत सोडवा — एकच सराव सर्व MPSC गट-क पदांसाठी उपयुक्त.",
       primaryCta: "आजची मोफत टेस्ट सुरू करा",
       secondaryCta: "Test Series पहा",
       stat1Value: "10,000+",
@@ -219,6 +220,11 @@ export const translations: Record<Locale, TranslationDict> = {
       title: "Standard-wise Subjects",
       subtitle: "तुमचा वर्ग निवडा आणि विषयानुसार सराव करा",
       comingSoon: "अभ्यासक्रम लवकरच जोडला जाईल.",
+    },
+    examCategories: {
+      title: "या सर्व परीक्षांसाठी उपयुक्त",
+      subtitle: "MPSC गट-क संयुक्त पूर्व परीक्षेतील खालील सर्व पदांसाठी एकच सराव पुरेसा आहे",
+      footnote: "कोणत्याही परीक्षेवर क्लिक करा आणि आजची मोफत टेस्ट सुरू करा — प्रश्नसंच सर्व पदांसाठी समान आहे.",
     },
     howItWorks: {
       title: "How It Works",
@@ -291,7 +297,7 @@ export const translations: Record<Locale, TranslationDict> = {
       trustLine: "कोणतीही अडचण नाही — एकदा पैसे भरा, अमर्यादित सराव करा.",
     },
     footer: {
-      tagline: "महाराष्ट्रातील RTO परीक्षार्थींसाठी विश्वासार्ह तयारी व्यासपीठ.",
+      tagline: "RTO व MPSC गट-क परीक्षार्थींसाठी (तलाठी, क्लर्क-टायपिस्ट, कर सहायक आणि अधिक) विश्वासार्ह तयारी व्यासपीठ.",
       rights: "सर्व हक्क राखीव.",
     },
     auth: {
@@ -428,9 +434,9 @@ export const translations: Record<Locale, TranslationDict> = {
       downloadApp: "Download App",
     },
     hero: {
-      badge: "🏆 Maharashtra's #1 RTO Exam Prep Platform",
-      title: "Give the right direction to your RTO exam preparation",
-      subtitle: "Solve 10 questions free every day and test your preparation.",
+      badge: "🏆 Maharashtra's #1 RTO & MPSC Group C Exam Prep Platform",
+      title: "Prepare for RTO, Talathi, Clerk-Typist, and every MPSC Group C exam",
+      subtitle: "Solve 10 questions free every day — one practice set covers every MPSC Group C post.",
       primaryCta: "Start Today's Free Test",
       secondaryCta: "View Test Series",
       stat1Value: "10,000+",
@@ -466,6 +472,11 @@ export const translations: Record<Locale, TranslationDict> = {
       title: "Standard-wise Subjects",
       subtitle: "Pick your standard and practice subject-wise",
       comingSoon: "Curriculum will be added soon.",
+    },
+    examCategories: {
+      title: "Useful for all these exams",
+      subtitle: "One practice set covers every post in the MPSC Group C combined preliminary exam",
+      footnote: "Click any exam to start today's free test — the question set is common to every post.",
     },
     howItWorks: {
       title: "How It Works",
@@ -539,7 +550,7 @@ export const translations: Record<Locale, TranslationDict> = {
     },
     footer: {
       tagline:
-        "A trusted preparation platform for RTO exam aspirants in Maharashtra.",
+        "A trusted preparation platform for RTO and MPSC Group C exam aspirants in Maharashtra (Talathi, Clerk-Typist, Tax Assistant, and more).",
       rights: "All rights reserved.",
     },
     auth: {

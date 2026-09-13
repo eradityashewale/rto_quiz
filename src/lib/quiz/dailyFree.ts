@@ -11,7 +11,7 @@ export const DAILY_FREE_LAUNCH_DATE = new Date(Date.UTC(2025, 8, 5));
 // means today, yesterday, and the day before - a 3-day rolling window).
 export const DAILY_FREE_PAST_DAYS_ALLOWED = 2;
 
-function todayUtcDate(): Date {
+export function todayUtcDate(): Date {
   const now = new Date();
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 }
@@ -269,6 +269,42 @@ export async function listDailyFreeDays(userId: string): Promise<DailyFreeDaySum
       attempted: Boolean(attempt),
       score: attempt?.score ?? null,
     };
+  });
+}
+
+export type UserForReminder = { id: string; name: string; mobile: string };
+
+/**
+ * Active users who haven't completed the given date's daily-free quiz yet
+ * (defaults to today) and haven't already been sent a reminder for that
+ * date - the audience for the "you missed today's quiz" WhatsApp cron.
+ */
+export async function getUsersMissingDailyFreeQuiz(
+  date: Date = todayUtcDate()
+): Promise<UserForReminder[]> {
+  const test = await getOrCreateDailyFreeTestForDate(date);
+
+  const completed = await prisma.testAttempt.findMany({
+    where: { testId: test.id, status: "COMPLETED" },
+    select: { userId: true },
+  });
+
+  const alreadyReminded = await prisma.quizReminderLog.findMany({
+    where: { date },
+    select: { userId: true },
+  });
+
+  const excludedUserIds = [
+    ...new Set([...completed.map((a) => a.userId), ...alreadyReminded.map((r) => r.userId)]),
+  ];
+
+  return prisma.user.findMany({
+    where: {
+      isActive: true,
+      role: "STUDENT",
+      id: { notIn: excludedUserIds },
+    },
+    select: { id: true, name: true, mobile: true },
   });
 }
 

@@ -169,6 +169,33 @@ export interface TranslationDict {
     errorTitle: string;
     loadingLabel: string;
   };
+  suggestions: {
+    navLabel: string;
+    pageTitle: string;
+    pageSubtitle: string;
+    newSuggestionCta: string;
+    cancelCta: string;
+    subjectLabel: string;
+    subjectPlaceholder: string;
+    messageLabel: string;
+    messagePlaceholder: string;
+    attachLabel: string;
+    attachCta: string;
+    submitCta: string;
+    submitting: string;
+    noSuggestions: string;
+    noSuggestionsDesc: string;
+    statusOpen: string;
+    statusReviewed: string;
+    statusClosed: string;
+    backCta: string;
+    composerPlaceholder: string;
+    sendCta: string;
+    sending: string;
+    closedNotice: string;
+    errorTitle: string;
+    loadingLabel: string;
+  };
 }
 
 export const translations: Record<Locale, TranslationDict> = {
@@ -423,6 +450,33 @@ export const translations: Record<Locale, TranslationDict> = {
       errorTitle: "काहीतरी चुकले",
       loadingLabel: "लोड होत आहे...",
     },
+    suggestions: {
+      navLabel: "सूचना",
+      pageTitle: "माझ्या सूचना",
+      pageSubtitle: "ॲपमध्ये काय सुधारावे किंवा कोणती सुविधा हवी ते आम्हाला सांगा.",
+      newSuggestionCta: "नवीन सूचना द्या",
+      cancelCta: "रद्द करा",
+      subjectLabel: "विषय",
+      subjectPlaceholder: "उदा. नवीन विषयाची भर घाला",
+      messageLabel: "तुमची सूचना",
+      messagePlaceholder: "तुमची सूचना सविस्तर लिहा...",
+      attachLabel: "फोटो जोडा (ऐच्छिक)",
+      attachCta: "📎 फोटो निवडा",
+      submitCta: "सूचना सबमिट करा",
+      submitting: "सबमिट करत आहे...",
+      noSuggestions: "अजून कोणतीही सूचना नाही",
+      noSuggestionsDesc: "ॲप सुधारण्यासाठी तुमची सूचना आमच्यासोबत शेअर करा.",
+      statusOpen: "प्रलंबित",
+      statusReviewed: "पाहिले",
+      statusClosed: "बंद",
+      backCta: "मागे जा",
+      composerPlaceholder: "तुमचा संदेश टाइप करा...",
+      sendCta: "पाठवा",
+      sending: "पाठवत आहे...",
+      closedNotice: "ही सूचना बंद करण्यात आली आहे.",
+      errorTitle: "काहीतरी चुकले",
+      loadingLabel: "लोड होत आहे...",
+    },
   },
   en: {
     nav: {
@@ -673,6 +727,33 @@ export const translations: Record<Locale, TranslationDict> = {
       closedNotice: "This ticket has been closed.",
       loginRequiredTitle: "Login Required",
       loginRequiredDesc: "Please log in to view your tickets.",
+      errorTitle: "Something went wrong",
+      loadingLabel: "Loading...",
+    },
+    suggestions: {
+      navLabel: "Suggestions",
+      pageTitle: "My Suggestions",
+      pageSubtitle: "Tell us what to improve or what feature you'd like to see.",
+      newSuggestionCta: "Give a Suggestion",
+      cancelCta: "Cancel",
+      subjectLabel: "Subject",
+      subjectPlaceholder: "e.g. Add a new subject",
+      messageLabel: "Your suggestion",
+      messagePlaceholder: "Describe your suggestion in detail...",
+      attachLabel: "Attach images (optional)",
+      attachCta: "📎 Choose images",
+      submitCta: "Submit Suggestion",
+      submitting: "Submitting...",
+      noSuggestions: "No suggestions yet",
+      noSuggestionsDesc: "Share a suggestion to help us improve the app.",
+      statusOpen: "Open",
+      statusReviewed: "Reviewed",
+      statusClosed: "Closed",
+      backCta: "Back",
+      composerPlaceholder: "Type your message...",
+      sendCta: "Send",
+      sending: "Sending...",
+      closedNotice: "This suggestion has been closed.",
       errorTitle: "Something went wrong",
       loadingLabel: "Loading...",
     },

@@ -85,6 +85,12 @@ enum TicketStatus {
   CLOSED
 }
 
+enum SuggestionStatus {
+  OPEN
+  REVIEWED
+  CLOSED
+}
+
 // ---------- Auth / Users ----------
 
 model User {
@@ -111,6 +117,9 @@ model User {
   siteVisits         SiteVisit[]
   tickets            Ticket[]
   ticketMessages     TicketMessage[]
+  quizReminderLogs   QuizReminderLog[]
+  suggestions        Suggestion[]
+  suggestionMessages SuggestionMessage[]
 
   @@index([role])
 }
@@ -440,6 +449,19 @@ model DailyFreeProgress {
   @@index([userId])
 }
 
+// Records that a user was already sent a WhatsApp "you missed today's quiz"
+// reminder for a given date, so the daily cron never sends it twice.
+model QuizReminderLog {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date   DateTime @db.Date
+  sentAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
 // A single page load, used to power admin-dashboard traffic stats.
 // visitorId is a random id set in a long-lived cookie so anonymous visits
 // can be de-duplicated into "unique visitors" without requiring login.
@@ -497,5 +519,37 @@ model TicketMessage {
   createdAt   DateTime @default(now())
 
   @@index([ticketId])
+  @@index([senderId])
+}
+
+// A feature/improvement suggestion raised by a user, discussed with admins
+// as a message thread (mirrors Ticket, but for product feedback rather than
+// support queries).
+model Suggestion {
+  id        String            @id @default(cuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  status    SuggestionStatus  @default(OPEN)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  messages  SuggestionMessage[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model SuggestionMessage {
+  id           String     @id @default(cuid())
+  suggestionId String
+  suggestion   Suggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  senderId     String
+  sender       User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body         String
+  attachments  String[]   @default([])
+  createdAt    DateTime   @default(now())
+
+  @@index([suggestionId])
   @@index([senderId])
 }

@@ -117,6 +117,12 @@ export default function AdminDashboardPage() {
           >
             Support Tickets
           </Link>
+          <Link
+            href="/admin/suggestions"
+            className="whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            Suggestions
+          </Link>
         </div>
       </div>
 

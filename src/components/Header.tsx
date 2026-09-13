@@ -63,7 +63,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-bold text-slate-900">
+        <Link
+          href={user?.role === "ADMIN" ? "/admin" : "/"}
+          className="flex items-center gap-2 font-bold text-slate-900"
+        >
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
             RTO
           </span>
@@ -96,9 +99,19 @@ export function Header() {
               {t.tickets.navLabel}
             </Link>
           )}
+          {user && user.role !== "ADMIN" && (
+            <Link href="/suggestions" className="hover:text-blue-600">
+              {t.suggestions.navLabel}
+            </Link>
+          )}
           {user?.role === "ADMIN" && (
             <Link href="/admin/tickets" className="hover:text-blue-600">
               {t.tickets.navLabel}
+            </Link>
+          )}
+          {user?.role === "ADMIN" && (
+            <Link href="/admin/suggestions" className="hover:text-blue-600">
+              {t.suggestions.navLabel}
             </Link>
           )}
           {user?.role === "ADMIN" && (
@@ -202,6 +215,13 @@ export function Header() {
                   onClick={() => setOpen(false)}
                 >
                   {t.tickets.navLabel}
+                </Link>
+                <Link
+                  href={user.role === "ADMIN" ? "/admin/suggestions" : "/suggestions"}
+                  className="text-sm font-medium text-slate-700"
+                  onClick={() => setOpen(false)}
+                >
+                  {t.suggestions.navLabel}
                 </Link>
                 {user.role === "ADMIN" && (
                   <Link

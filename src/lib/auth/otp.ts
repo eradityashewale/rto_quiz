@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendOtpEmail } from "@/lib/email";
+import { sendRegistrationWelcomeMessage } from "@/lib/whatsapp";
 
 const OTP_TTL_MINUTES = 10;
 const MAX_ATTEMPTS = 5;
@@ -87,6 +88,8 @@ export async function confirmPendingRegistration(
     await tx.pendingRegistration.delete({ where: { email } });
     return created;
   });
+
+  await sendRegistrationWelcomeMessage({ name: pending.name, mobile: pending.mobile });
 
   return { ok: true, userId: user.id };
 }
